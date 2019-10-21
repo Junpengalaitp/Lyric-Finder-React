@@ -1,26 +1,47 @@
-import React, { useState, useEffect } from 'react'
-import axios from 'axios';
+import React, { Component } from "react";
+import axios from "axios";
 
-const Context = React.createContext()
+const Context = React.createContext();
 
-export const Provider = (props) => {
+const reducer = (state, action) => {
+  switch (action.type) {
+    case 'SEARCH_TRACKS':
+      return {
+				...state,
+				trackList: action.payload,
+				heading: 'Search Results'
+			}
 
-    const [trackList, setTrackList] = useState([])
-    
-    const [heading, setHeading] = useState("Top 10 tracks");
+    default:
+      return state;
+  }
+};
 
-    useEffect(() => {
-        axios.get(`https://cors-anywhere.herokuapp.com/http://api.musixmatch.com/ws/1.1/chart.tracks.get?chart_name=top&page=1&page_size=10&country=us&f_has_lyrics=1&apikey=${process.env.REACT_APP_MM_KEY}`)
-            .then(res => {
-                setTrackList(res.data.message.body.track_list)})
-            .catch(err => console.log(err))
-    }, [])
+export class Provider extends Component  {
+	state = {
+		trackList: [],
+		heading: "Top 10 tracks",
+		dispatch: action => this.setState(state => reducer(state, action))
+	}
 
-    return (
-        <Context.Provider value={{trackList, heading}}>
-            {props.children}
-        </Context.Provider>
-    )
-}
+	componentDidMount() {
+		axios
+      .get(
+        `https://cors-anywhere.herokuapp.com/http://api.musixmatch.com/ws/1.1/chart.tracks.get?chart_name=top&page=1&page_size=10&country=us&f_has_lyrics=1&apikey=${process.env.REACT_APP_MM_KEY}`
+      )
+      .then(res => {
+        this.setState({trackList: res.data.message.body.track_list});
+      })
+      .catch(err => console.log(err));
+	}
 
-export const Consumer = Context.Consumer
+	render() {
+		return (
+			<Context.Provider value={this.state}>
+				{this.props.children}
+			</Context.Provider>
+		);
+	}
+};
+
+export const Consumer = Context.Consumer;
