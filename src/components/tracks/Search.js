@@ -14,7 +14,6 @@ const Search = () => {
     axios.get(`https://cors-anywhere.herokuapp.com/http://api.musixmatch.com/ws/1.1/track.search?q_track=${trackTitle}&page_size=10&page=1&s_track_rating=desc&apikey=${process.env.REACT_APP_MM_KEY}`)
             .then(res => {
                 dispatch({
-                  type: 'SEARCH_TRACKS',
                   payload: res.data.message.body.track_list
                 })
                 setTrackTitle('')
@@ -25,7 +24,7 @@ const Search = () => {
   return (
     <Consumer>
       {value => {
-        const { dispatch } = value;
+				const { dispatch } = value
         return (
           <div className="card card-body mb-4 p-4">
             <h1 className="display-4 text-center">
